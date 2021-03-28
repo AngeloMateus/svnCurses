@@ -1,11 +1,26 @@
 #import "svn_curses.h"
 
+
+void printCursorPosition(WINDOW *p_cursorWin){
+    wclear(p_cursorWin);
+    mvwprintw(p_cursorWin, State::cursorPosition, 2, "-");
+    wrefresh(p_cursorWin);
+}
+
 void keyEvent() {
   int c = getch();
   switch (c) {
   case 'q':
   case 'Q':
     State::isRunning = false;
+    break;
+  case 'j':
+    State::cursorPosition = State::cursorPosition + 1;
+    break;
+  case 'k':
+    if (State::cursorPosition > 0) {
+      State::cursorPosition = State::cursorPosition - 1;
+    }
     break;
   default:
     return;
@@ -27,10 +42,10 @@ string exec(const char *cmd) {
 }
 
 void printStatus(WINDOW *p_win) {
+  wclear(p_win);
   string execResult = exec("svn st");
 
   split(State::statusItems, execResult, boost::is_any_of("\n"));
-  wclear(p_win);
   for (int i = 0; i < State::statusItems.size(); i++) {
 
     switch (State::statusItems[i].front()) {
@@ -68,17 +83,21 @@ void printStatus(WINDOW *p_win) {
               ((string() + State::statusItems[i].front()) + "\n").c_str());
     }
   }
+
+  refresh();
 }
 
 int main() {
   State::isRunning = true;
   WINDOW *win;
+  WINDOW *cursorWin;
   initscr();
   cbreak();
   timeout(1000);
   keypad(stdscr, true);
   start_color();
   use_default_colors();
+  curs_set(0);
   noecho();
 
   init_pair(1, COLOR_BLUE, -1);
@@ -90,14 +109,19 @@ int main() {
   int maxX = 0, maxY = 0;
   getmaxyx(stdscr, maxY, maxX);
   win = newwin(maxY, maxX - 4, 0, 4);
-  box(win, 0, 0);
+  cursorWin = newwin(maxY, 4, 0, 0);
+
   wprintw(win, "...");
+  wrefresh(win);
   printStatus(win);
+  printCursorPosition(cursorWin);
+  wrefresh(win);
 
   while (State::isRunning == true) {
-    refresh();
-    wrefresh(win);
     keyEvent();
+    printCursorPosition(cursorWin);
+    /* refresh(); */
+    /* wrefresh(win); */
   }
 
   endwin();
