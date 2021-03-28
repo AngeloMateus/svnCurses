@@ -1,0 +1,25 @@
+%clang
+%Wall
+%c -std=c++17
+
+add this to support `.h` files as C++ headers
+%h -x c++-header
+-I.
+-I../src
+
+%compile_commands.json
+
+-I /usr/local/Cellar/boost/1.75.0_2/include
+
+-isystem
+/usr/local/include
+-isystem
+/Applications/Xcode11_5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1
+-isystem
+/Applications/Xcode11_5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include
+-isystem
+/Applications/Xcode11_5.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include
+-isystem
+/Applications/Xcode11_5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
+-isystem
+/Applications/Xcode11_5.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks
