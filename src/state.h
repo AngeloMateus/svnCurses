@@ -13,6 +13,7 @@ protected:
 public:
   static bool isRunning;
   static vector<string> statusItems;
+  static vector<string> selectedItems;
   static int cursorPosition;
 };
 
