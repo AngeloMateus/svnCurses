@@ -5,7 +5,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/algorithm.hpp>
 #include <cstdio>
-#include <cdk.h>
+/* #include <cdk.h> */
 #include <cstring>
 #include <curses.h>
 #include <cwchar>
