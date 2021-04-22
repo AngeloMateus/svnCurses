@@ -4,16 +4,21 @@ void printStatusWithColor(WINDOW *p_win, int i) {
   int padSize = State::maxX - State::statusItems[i].size();
 
   // find selectedItems in statusItems
-  vector<string>::iterator it =
+  bool isItemSelected =
       find(State::selectedItems.begin(), State::selectedItems.end(),
-           State::statusItems[i]);
-  if (it != State::selectedItems.end()) {
-  }
+           State::statusItems[i]) != State::selectedItems.end();
 
+  // print cursorPosition
   if (i == State::cursorPosition) {
     wattron(p_win, COLOR_PAIR(6));
     wprintw(p_win, (State::statusItems[i]).append(padSize, ' ').c_str());
     wattroff(p_win, COLOR_PAIR(6));
+    // print rest of statusItems
+  } else if (isItemSelected) {
+    wattron(p_win, A_BOLD);
+    wattron(p_win, COLOR_PAIR(8));
+    wprintw(p_win, State::statusItems[i].c_str());
+    wattroff(p_win, COLOR_PAIR(8));
   } else {
     int colorPair;
     switch (State::statusItems[i].front()) {
@@ -55,13 +60,9 @@ void printStatusWithColor(WINDOW *p_win, int i) {
 void printAllStatus(WINDOW *pad) {
   wclear(pad);
   for (int i = State::padPos; i < State::statusItems.size(); i++) {
-
     /* usleep(25000); */
     printStatusWithColor(pad, i);
   }
-  /* prefresh(pad, 0, 0, 0, 0, */
-  /*          State::maxY + State::cursorPosition, State::maxX); */
-  /* State::padPos++; */
 }
 
 string exec(const char *cmd) {
@@ -78,7 +79,6 @@ string exec(const char *cmd) {
 }
 
 void refreshStatusItems(WINDOW *pad, WINDOW *win) {
-
   mvwprintw(win, State::maxY - 1, 0, "...");
   doupdate();
   wrefresh(win);
@@ -101,6 +101,29 @@ void refreshStatusItems(WINDOW *pad, WINDOW *win) {
   prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
 }
 
+void moveOneRowUp(WINDOW *pad) {
+  if (State::cursorPosition > 0) {
+    State::cursorPosition--;
+
+    if (State::cursorPosition <= State::padPos) {
+      State::padPos = max(0, State::padPos - 1);
+    }
+  }
+  printAllStatus(pad);
+  prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+}
+
+void moveOneRowDown(WINDOW *pad) {
+  if (State::cursorPosition < State::statusItems.size() - 1) {
+    State::cursorPosition++;
+    if (State::cursorPosition >= State::maxY - 2 + State::padPos) {
+      State::padPos++;
+    }
+  }
+  printAllStatus(pad);
+  prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+}
+
 void keyEvent(WINDOW *pad, WINDOW *win) {
   int c = getch();
   switch (c) {
@@ -109,25 +132,10 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     State::isRunning = false;
     break;
   case 'j':
-    if (State::cursorPosition < State::statusItems.size() - 1) {
-      State::cursorPosition++;
-      if (State::cursorPosition >= State::maxY - 2 + State::padPos) {
-        State::padPos++;
-      }
-    }
-    printAllStatus(pad);
-    prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+    moveOneRowDown(pad);
     break;
   case 'k':
-    if (State::cursorPosition > 0) {
-      State::cursorPosition--;
-
-      if (State::cursorPosition <= State::padPos) {
-        State::padPos = max(0, State::padPos - 1);
-      }
-    }
-    printAllStatus(pad);
-    prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+    moveOneRowUp(pad);
     break;
   case 'G':
     if (State::cursorPosition < State::statusItems.size() - 1) {
@@ -138,17 +146,30 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
     break;
   case 'g':
-    State::cursorPosition = 0;
-    State::padPos = 0;
-    printAllStatus(pad);
-    prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+    if (getch() == 'g') {
+      State::cursorPosition = 0;
+      State::padPos = 0;
+      printAllStatus(pad);
+      prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+    }
     break;
   case 'r':
     State::cursorPosition = 0;
     State::padPos = 0;
     refreshStatusItems(pad, win);
+  case 'a':
   case ' ':
-    State::selectedItems.push_back(State::statusItems[State::cursorPosition]);
+    if (find(State::selectedItems.begin(), State::selectedItems.end(),
+             State::statusItems[State::cursorPosition]) !=
+        State::selectedItems.end()) {
+      State::selectedItems.erase(
+          remove(State::selectedItems.begin(), State::selectedItems.end(),
+                 State::statusItems[State::cursorPosition]),
+          State::selectedItems.end());
+    } else {
+      State::selectedItems.push_back(State::statusItems[State::cursorPosition]);
+    }
+    moveOneRowDown(pad);
     break;
   default:
     return;
@@ -178,7 +199,7 @@ int main() {
     init_pair(5, COLOR_MAGENTA, -1);
     init_pair(6, COLOR_BLACK, COLOR_WHITE);
     init_pair(7, COLOR_BLUE, COLOR_WHITE);
-    init_pair(8, -1, -1);
+    init_pair(8, 74, -1);
 
     getmaxyx(stdscr, State::maxY, State::maxX);
     win = newwin(State::maxY, State::maxX, 0, 0);

@@ -17,4 +17,8 @@ public:
   static int cursorPosition, maxX, maxY, padPos;
 };
 
+private:
+enum Modes { add, rm, norm };
+Modes currentMode;
+
 #endif
