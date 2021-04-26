@@ -79,6 +79,7 @@ string exec(const char *cmd) {
 }
 
 void refreshStatusItems(WINDOW *pad, WINDOW *win) {
+  State::selectedItems.clear();
   mvwprintw(win, State::maxY - 1, 0, "...");
   doupdate();
   wrefresh(win);
@@ -157,6 +158,7 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     State::cursorPosition = 0;
     State::padPos = 0;
     refreshStatusItems(pad, win);
+    break;
   case 'a':
   case ' ':
     if (find(State::selectedItems.begin(), State::selectedItems.end(),

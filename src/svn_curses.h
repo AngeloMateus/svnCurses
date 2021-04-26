@@ -5,7 +5,6 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/algorithm.hpp>
 #include <cstdio>
-/* #include <cdk.h> */
 #include <cstring>
 #include <curses.h>
 #include <cwchar>
@@ -15,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <svn_client.h>
 #include "state.h"
 
 using namespace std;

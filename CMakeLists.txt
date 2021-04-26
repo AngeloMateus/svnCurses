@@ -20,6 +20,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF) 
 find_package(Boost REQUIRED COMPONENTS) 
 find_package(Curses REQUIRED COMPONENTS) 
+find_package(libsvn_client REQUIRED COMPONENTS) 
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS}) 

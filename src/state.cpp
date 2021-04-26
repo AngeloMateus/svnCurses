@@ -7,6 +7,6 @@ int State::cursorPosition = 0, State::maxX = 0, State::maxY = 0,
     State::padPos = 0;
 
 
-State::Modes State::currentMode = State::norm;
+/* State::Modes State::currentMode = State::norm; */
 
 State::State() {}
