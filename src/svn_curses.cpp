@@ -1,4 +1,6 @@
-#import "svn_curses.h"
+#include "svn_curses.h"
+
+int bottomWindowSize = 8;
 
 void printStatusWithColor(WINDOW *p_win, int i) {
   int padSize = State::maxX - State::statusItems[i].size();
@@ -8,7 +10,6 @@ void printStatusWithColor(WINDOW *p_win, int i) {
       find(State::selectedItems.begin(), State::selectedItems.end(),
            State::statusItems[i]) != State::selectedItems.end();
 
-  // print cursorPosition
   if (i == State::cursorPosition) {
     wattron(p_win, COLOR_PAIR(6));
     wprintw(p_win, (State::statusItems[i]).append(padSize, ' ').c_str());
@@ -51,12 +52,6 @@ void printStatusWithColor(WINDOW *p_win, int i) {
   }
 }
 
-/* void printSelectedInCursorPosition(WINDOW *p_cursorWin) { */
-/*   wclear(p_cursorWin); */
-/*   mvwprintw(p_cursorWin, State::cursorPosition, 2, "-"); */
-/*   wrefresh(p_cursorWin); */
-/* } */
-
 void printAllStatus(WINDOW *pad) {
   wclear(pad);
   for (int i = State::padPos; i < State::statusItems.size(); i++) {
@@ -93,13 +88,14 @@ void refreshStatusItems(WINDOW *pad, WINDOW *win) {
 
   execResult.pop_back();
   split(State::statusItems, execResult, boost::is_any_of("\n"));
+
   refresh();
   printAllStatus(pad);
   // pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol
   mvwprintw(win, State::maxY - 1, 0, "   ");
   doupdate();
   wrefresh(win);
-  prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+  prefresh(pad, 0, 0, 0, 0, State::maxY - bottomWindowSize, State::maxX);
 }
 
 void moveOneRowUp(WINDOW *pad) {
@@ -111,18 +107,19 @@ void moveOneRowUp(WINDOW *pad) {
     }
   }
   printAllStatus(pad);
-  prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+  prefresh(pad, 0, 0, 0, 0, State::maxY - bottomWindowSize, State::maxX);
 }
 
 void moveOneRowDown(WINDOW *pad) {
   if (State::cursorPosition < State::statusItems.size() - 1) {
     State::cursorPosition++;
-    if (State::cursorPosition >= State::maxY - 2 + State::padPos) {
+    if (State::cursorPosition >=
+        State::maxY - bottomWindowSize + State::padPos) {
       State::padPos++;
     }
   }
   printAllStatus(pad);
-  prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+  prefresh(pad, 0, 0, 0, 0, State::maxY - bottomWindowSize, State::maxX);
 }
 
 void keyEvent(WINDOW *pad, WINDOW *win) {
@@ -144,22 +141,100 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
       State::padPos = State::statusItems.size() + 2 - State::maxY;
     }
     printAllStatus(pad);
-    prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+    prefresh(pad, 0, 0, 0, 0, State::maxY - bottomWindowSize, State::maxX);
     break;
   case 'g':
     if (getch() == 'g') {
       State::cursorPosition = 0;
       State::padPos = 0;
       printAllStatus(pad);
-      prefresh(pad, 0, 0, 0, 0, State::maxY - 2, State::maxX);
+      prefresh(pad, 0, 0, 0, 0, State::maxY - bottomWindowSize, State::maxX);
     }
     break;
-  case 'r':
+  case 's':
     State::cursorPosition = 0;
     State::padPos = 0;
     refreshStatusItems(pad, win);
     break;
-  case 'a':
+  case 'a': {
+    vector<string> items = State::selectedItems;
+    for_each(items.begin(), items.end(), [](string &str) { str.erase(0, 7); });
+    wclear(win);
+    wrefresh(win);
+    mvwprintw(win, bottomWindowSize - 1, 0, "Add selected items? (y/n?)");
+    wrefresh(win);
+    timeout(8000);
+    if (getch() == 'y') {
+      wclear(win);
+      wrefresh(win);
+      string joinedStr = boost::algorithm::join(items, " ");
+      string result = exec(("svn add " + joinedStr).c_str());
+      wprintw(win, result.c_str());
+      wrefresh(win);
+
+      getch();
+      refreshStatusItems(pad, win);
+
+    } else {
+
+      wclear(win);
+      wrefresh(win);
+    }
+    break;
+  }
+  case 'r': {
+    vector<string> items = State::selectedItems;
+    for_each(items.begin(), items.end(), [](string &str) { str.erase(0, 7); });
+    wclear(win);
+    wrefresh(win);
+    mvwprintw(win, bottomWindowSize - 1, 0, "Delete selected items? (y/n?)");
+    wrefresh(win);
+    timeout(8000);
+    string keepLocal = "";
+    if (getch() == 'y') {
+      wclear(win);
+      wrefresh(win);
+      mvwprintw(win, bottomWindowSize - 1, 0, "Keep local files? (y/n?)");
+      wrefresh(win);
+      if (getch() == 'y') {
+        keepLocal = "--keep-local ";
+      }
+      wclear(win);
+      wrefresh(win);
+      string joinedStr = boost::algorithm::join(items, " ");
+      string result = exec(("svn rm " + keepLocal + joinedStr).c_str());
+      wprintw(win, result.c_str());
+      wrefresh(win);
+      getch();
+      State::cursorPosition = 0;
+      State::padPos = 0;
+      refreshStatusItems(pad, win);
+    } else {
+      wclear(win);
+      wrefresh(win);
+    }
+    break;
+  }
+  case 'u':
+    mvwprintw(win, bottomWindowSize - 1, 0,
+              "Bring changes from the repository into the working "
+              "copy? (y/n?)");
+    wrefresh(win);
+    timeout(8000);
+    if (getch() == 'y') {
+      wclear(win);
+      wrefresh(win);
+      string result = exec("svn up");
+      wprintw(win, result.c_str());
+      wrefresh(win);
+      getch();
+      refreshStatusItems(pad, win);
+    } else {
+      wclear(win);
+      wrefresh(win);
+    }
+
+    break;
   case ' ':
     if (find(State::selectedItems.begin(), State::selectedItems.end(),
              State::statusItems[State::cursorPosition]) !=
@@ -204,8 +279,9 @@ int main() {
     init_pair(8, 74, -1);
 
     getmaxyx(stdscr, State::maxY, State::maxX);
-    win = newwin(State::maxY, State::maxX, 0, 0);
-    pad = newpad(State::maxY - 2, State::maxX);
+    win = newwin(bottomWindowSize, State::maxX, State::maxY - bottomWindowSize,
+                 0);
+    pad = newpad(State::maxY - bottomWindowSize, State::maxX);
     if (pad == NULL) {
       endwin();
       return printf("ERROR: Couldn't create pad\n");
@@ -213,9 +289,10 @@ int main() {
 
     refreshStatusItems(pad, win);
 
+    scrollok(win, TRUE);
+    idlok(win, TRUE);
     while (State::isRunning == true) {
       keyEvent(pad, win);
-      /* wrefresh(win); */
     }
 
     delwin(pad);

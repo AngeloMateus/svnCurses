@@ -8,9 +8,6 @@ project(svn_curses)
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-# include_directories(/usr/local/Cellar/cdk/5.0-20210109/include/cdk)
-# include_directories(/usr/local/Cellar/cdk/5.0-20210109/include/)
-
 file(GLOB SOURCES
         "${PROJECT_SOURCE_DIR}/src/*.h"
         "${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -20,7 +17,6 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF) 
 find_package(Boost REQUIRED COMPONENTS) 
 find_package(Curses REQUIRED COMPONENTS) 
-find_package(libsvn_client REQUIRED COMPONENTS) 
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS}) 
@@ -31,5 +27,19 @@ if(Boost_FOUND)
 
     target_link_libraries(svn_curses ${Boost_LIBRARIES})
     target_link_libraries(svn_curses ${CURSES_LIBRARIES})
-    # target_link_libraries(svn_curses /usr/local/Cellar/cdk/5.0-20210109/lib/libcdk.a)
+endif()
+
+
+find_package(PkgConfig)
+if (PKG_CONFIG_FOUND)
+    pkg_check_modules(APR "apr-1")
+    if (APR_FOUND)
+        target_link_libraries(svn_curses ${APR_LIBRARIES})
+        add_definitions(${APR_CFLAGS} ${APR_CFLAGS_OTHER})
+  endif()
+  # pkg_check_modules(SVN "subversion-1")
+  #   if (SVN_FOUND)
+  #       target_link_libraries(svn_curses ${SVN_LIBRARIES})
+  #       add_definitions(${SVN_CFLAGS} ${SVN_CFLAGS_OTHER})
+  # endif()
 endif()

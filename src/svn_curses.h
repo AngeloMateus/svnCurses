@@ -2,6 +2,7 @@
 #define SVN_CURSES_H_INCLUDED
 
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/algorithm.hpp>
 #include <cstdio>
@@ -14,7 +15,6 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <svn_client.h>
 #include "state.h"
 
 using namespace std;

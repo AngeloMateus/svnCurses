@@ -9,10 +9,14 @@ add this to support `.h` files as C++ headers
 
 %compile_commands.json
 
--I /usr/local/Cellar/boost/1.75.0_2/include
+-I /usr/local/include
+-I /usr/local/apr/include
+-I /usr/local/include/subversion-1/
 
 -isystem
 /usr/local/include
+-isystem
+/usr/local/apr/include
 -isystem
 /Applications/Xcode11_5.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1
 -isystem
