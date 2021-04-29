@@ -138,8 +138,12 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     break;
   case 'G':
     if (State::cursorPosition < State::statusItems.size() - 1) {
+      if (State::maxY < State::statusItems.size() - 1) {
+        State::padPos =
+            State::statusItems.size() - State::maxY + bottomWindowSize;
+      }
       State::cursorPosition = State::statusItems.size() - 1;
-      State::padPos = State::statusItems.size() + 2 - State::maxY;
+      /* State::padPos = State::statusItems.size() + 2 - State::maxY; */
     }
     printAllStatus(pad);
     prefresh(pad, 0, 0, 0, 0, State::maxY - bottomWindowSize, State::maxX);
