@@ -88,6 +88,7 @@ void refreshStatusItems(WINDOW *pad, WINDOW *win) {
 
   execResult.pop_back();
   split(State::statusItems, execResult, boost::is_any_of("\n"));
+  State::allStatusItems = State::statusItems;
 
   refresh();
   printAllStatus(pad);
@@ -248,6 +249,13 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     }
     moveOneRowDown(pad);
     break;
+  case '.': {
+    State::mode add = State::ADD;
+    bool wah = State::getMode(add);
+    /* if (wah == false) */
+      /* throw 0; */
+    break;
+  }
   default:
     return;
   }
