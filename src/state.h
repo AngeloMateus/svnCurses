@@ -4,6 +4,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <stdexcept>
+#include <cstdio>
 
 using namespace std;
 

@@ -15,10 +15,11 @@ tuple<State::mode, bool> State::hidden = make_tuple(State::HIDDEN, false);
 tuple<State::mode, bool> State::rm = make_tuple(State::RM, false);
 
 tuple<State::mode, bool> State::getAddMode() { return State::add; }
-void State::setAddMode(tuple<State::mode, bool> t) { State::add = t; }
 tuple<State::mode, bool> State::getHiddenMode() { return State::hidden; }
-void State::setHiddenMode(tuple<State::mode, bool> t) { State::hidden = t; }
 tuple<State::mode, bool> State::getRmMode() { return State::rm; }
+
+void State::setHiddenMode(tuple<State::mode, bool> t) { State::hidden = t; }
+void State::setAddMode(tuple<State::mode, bool> t) { State::add = t; }
 void State::setRmMode(tuple<State::mode, bool> t) { State::rm = t; }
 
 bool State::getMode(State::mode m) {

@@ -9,6 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(svn_curses)
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/dependecies/subversion/subversion/include)
+include_directories(${PROJECT_SOURCE_DIR}/dependecies/apr/include)
 
 file(GLOB SOURCES
         "${PROJECT_SOURCE_DIR}/src/*.h"
@@ -39,9 +41,4 @@ if (PKG_CONFIG_FOUND)
         target_link_libraries(svn_curses ${APR_LIBRARIES})
         add_definitions(${APR_CFLAGS} ${APR_CFLAGS_OTHER})
   endif()
-  # pkg_check_modules(SVN "subversion-1")
-  #   if (SVN_FOUND)
-  #       target_link_libraries(svn_curses ${SVN_LIBRARIES})
-  #       add_definitions(${SVN_CFLAGS} ${SVN_CFLAGS_OTHER})
-  # endif()
 endif()

@@ -168,23 +168,20 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     wrefresh(win);
     mvwprintw(win, bottomWindowSize - 1, 0, "Add selected items? (y/n?)");
     wrefresh(win);
-    timeout(8000);
+    timeout(12000);
     if (getch() == 'y') {
       wclear(win);
       wrefresh(win);
       string joinedStr = boost::algorithm::join(items, " ");
       string result = exec(("svn add " + joinedStr).c_str());
+
       wprintw(win, result.c_str());
       wrefresh(win);
-
       getch();
-      refreshStatusItems(pad, win);
-
-    } else {
-
-      wclear(win);
-      wrefresh(win);
     }
+    refreshStatusItems(pad, win);
+    wclear(win);
+    wrefresh(win);
     break;
   }
   case 'r': {
@@ -194,7 +191,7 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     wrefresh(win);
     mvwprintw(win, bottomWindowSize - 1, 0, "Delete selected items? (y/n?)");
     wrefresh(win);
-    timeout(8000);
+    timeout(12000);
     string keepLocal = "";
     if (getch() == 'y') {
       wclear(win);
@@ -206,18 +203,18 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
       }
       wclear(win);
       wrefresh(win);
-      string joinedStr = boost::algorithm::join(items, " ");
+      string joinedStr = boost::join(items, " ");
       string result = exec(("svn rm " + keepLocal + joinedStr).c_str());
+
       wprintw(win, result.c_str());
       wrefresh(win);
       getch();
-      State::cursorPosition = 0;
-      State::padPos = 0;
-      refreshStatusItems(pad, win);
-    } else {
-      wclear(win);
-      wrefresh(win);
     }
+    State::cursorPosition = 0;
+    State::padPos = 0;
+    wclear(win);
+    refreshStatusItems(pad, win);
+    wrefresh(win);
     break;
   }
   case 'u':
@@ -254,10 +251,14 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
     moveOneRowDown(pad);
     break;
   case '.': {
-    State::mode add = State::ADD;
-    bool wah = State::getMode(add);
-    /* if (wah == false) */
-      /* throw 0; */
+    State::toggleMode(State::HIDDEN);
+    bool hidden = State::getMode(State::HIDDEN);
+
+    wclear(win);
+    wrefresh(win);
+    string s = "HIDDEN = ";
+    wprintw(win, (s + (hidden ? "true" : "false")).c_str());
+    wrefresh(win);
     break;
   }
   default:
