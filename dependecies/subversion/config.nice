@@ -1,0 +1,5 @@
+#! /bin/sh
+#
+# Created by configure
+
+'./configure'  '--with-lz4=internal' '--with-utf8proc=internal' "$@"
