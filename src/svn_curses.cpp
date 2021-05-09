@@ -10,17 +10,28 @@ void printStatusWithColor(WINDOW *p_win, int i) {
       find(State::selectedItems.begin(), State::selectedItems.end(),
            State::statusItems[i]) != State::selectedItems.end();
 
-  if (i == State::cursorPosition) {
-    wattron(p_win, COLOR_PAIR(6));
-    wprintw(p_win, (State::statusItems[i]).append(padSize, ' ').c_str());
-    wattroff(p_win, COLOR_PAIR(6));
-    // print rest of statusItems
-  } else if (isItemSelected) {
+  string item = State::statusItems[i].append(padSize, ' ');
+
+  if (isItemSelected && i != State::cursorPosition) {
     wattron(p_win, A_BOLD);
     wattron(p_win, COLOR_PAIR(8));
-    wprintw(p_win, State::statusItems[i].c_str());
+    item.insert(8, " ");
+    item.erase(item.end() - 1);
+    wprintw(p_win, (item).c_str());
     wattroff(p_win, COLOR_PAIR(8));
+  } else if (isItemSelected && i == State::cursorPosition) {
+    wattron(p_win, COLOR_PAIR(6));
+    item.insert(8, " ");
+    item.erase(item.end() - 1);
+    wprintw(p_win, item.c_str());
+    wattroff(p_win, COLOR_PAIR(6));
+  } else if (i == State::cursorPosition) {
+    wattron(p_win, COLOR_PAIR(6));
+    wprintw(p_win, item.c_str());
+    wattroff(p_win, COLOR_PAIR(6));
   } else {
+    // print rest of statusItems
+
     int colorPair;
     switch (State::statusItems[i].front()) {
     case 'M':
@@ -47,7 +58,7 @@ void printStatusWithColor(WINDOW *p_win, int i) {
     wattron(p_win, COLOR_PAIR(colorPair));
     /* wprintw(p_win, (State::statusItems[i] + "\n").c_str()); */
 
-    wprintw(p_win, (State::statusItems[i]).append(padSize, ' ').c_str());
+    wprintw(p_win, item.c_str());
     wattroff(p_win, COLOR_PAIR(colorPair));
   }
 }
