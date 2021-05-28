@@ -186,9 +186,9 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
       string joinedStr = boost::algorithm::join(items, " ");
       string result = exec(("svn add " + joinedStr).c_str());
 
-      wprintw(win, result.c_str());
-      wrefresh(win);
-      getch();
+      /* wprintw(win, result.c_str()); */
+      /* wrefresh(win); */
+      /* getch(); */
     }
     refreshStatusItems(pad, win);
     wclear(win);
@@ -217,9 +217,9 @@ void keyEvent(WINDOW *pad, WINDOW *win) {
       string joinedStr = boost::join(items, " ");
       string result = exec(("svn rm " + keepLocal + joinedStr).c_str());
 
-      wprintw(win, result.c_str());
-      wrefresh(win);
-      getch();
+      /* wprintw(win, result.c_str()); */
+      /* wrefresh(win); */
+      /* getch(); */
     }
     State::cursorPosition = 0;
     State::padPos = 0;
